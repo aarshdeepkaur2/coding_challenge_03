@@ -9,6 +9,18 @@ const tasksCollection = db.collection("tasks");
  */
 export const createTask = async (taskData: any): Promise<any> => {
 	return { id: "placeholder_id", ...taskData };
+
+export const createTask = async (taskData: Task): Promise<Task> => {
+    try {
+        const newTaskRef = await tasksCollection.add({
+            ...taskData,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        });
+        return { id: newTaskRef.id, ...taskData };
+    } catch (error) {
+        throw new Error(`Error creating task: ${(error as Error).message}`);
+    }
 };
 
 /**
@@ -16,6 +28,7 @@ export const createTask = async (taskData: any): Promise<any> => {
  * @param userId - The userId to filter tasks by.
  * @returns Array of tasks for the given userId.
  */
+
 export const getTasksByUserId = async (userId: string): Promise<any[]> => {
 	return [
 		{
@@ -35,6 +48,15 @@ export const getTasksByUserId = async (userId: string): Promise<any[]> => {
 			dueDate: new Date().toISOString(),
 		},
 	];
+export const getTasksByUserId = async (userId: string): Promise<Task[]> => {
+    try {
+        const snapshot = await tasksCollection.where("userId", "==", userId).get();
+        return snapshot.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() } as Task)
+        );
+    } catch (error) {
+        throw new Error(`Error fetching tasks: ${(error as Error).message}`);
+
 };
 
 /**
@@ -48,6 +70,21 @@ export const updateTaskStatus = async (
 	status: string
 ): Promise<{ id: string; status: string }> => {
 	return { id: taskId, status };
+
+    try {
+        const taskRef = tasksCollection.doc(taskId);
+        await db.runTransaction(async (transaction) => {
+            const taskDoc = await transaction.get(taskRef);
+            if (!taskDoc.exists) {
+                throw new Error("Task not found");
+            }
+            transaction.update(taskRef, { status, updatedAt: new Date().toISOString() });
+        });
+        return { id: taskId, status };
+    } catch (error) {
+        throw new Error(`Error updating task status: ${(error as Error).message}`);
+    }
+
 };
 
 /**
@@ -58,5 +95,20 @@ export const updateTaskStatus = async (
 export const deleteTask = async (
 	taskId: string
 ): Promise<{ id: string; deleted: boolean }> => {
+
 	return { id: taskId, deleted: true };
 };
+
+    try {
+        const taskRef = tasksCollection.doc(taskId);
+        const taskDoc = await taskRef.get();
+        if (!taskDoc.exists) {
+            throw new Error("Task not found");
+        }
+        await taskRef.delete();
+        return { id: taskId, deleted: true };
+    } catch (error) {
+        throw new Error(`Error deleting task: ${(error as Error).message}`);
+    }
+};
+
