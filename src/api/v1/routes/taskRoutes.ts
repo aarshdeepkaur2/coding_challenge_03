@@ -9,7 +9,7 @@ import {
 const router: Router = express.Router();
 
 /** Route for creating a new task */
-router.post("/", createTask);
+router.post("/:id", createTask);
 
 /** Route for retrieving tasks */
 router.get("/", getTasks);

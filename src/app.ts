@@ -1,11 +1,12 @@
 import express, { Request, Response, NextFunction, Express } from "express";
 import taskRoutes from "./api/v1/routes/taskRoutes";
+import errorHandler from "./api/v1/middleware/errorHandler";
 
 const app: Express = express();
 app.use(express.json());
 
 app.use("/api/v1/tasks", taskRoutes);
-
+app.use(errorHandler); 
 /**
  * Global error handler.
  */
