@@ -2,12 +2,14 @@ import { db } from "../../../../config/firebaseconfig";
 import { Task } from "../models/taskModel";
 
 const tasksCollection = db.collection("tasks");
-
 /**
- * Repository function to create a task in Firestore.
+ * Repository function to create a task in the database.
  * @param taskData - Data of the task to create.
  * @returns Created task with ID.
  */
+export const createTask = async (taskData: any): Promise<any> => {
+	return { id: "placeholder_id", ...taskData };
+
 export const createTask = async (taskData: Task): Promise<Task> => {
     try {
         const newTaskRef = await tasksCollection.add({
@@ -26,6 +28,26 @@ export const createTask = async (taskData: Task): Promise<Task> => {
  * @param userId - The userId to filter tasks by.
  * @returns Array of tasks for the given userId.
  */
+
+export const getTasksByUserId = async (userId: string): Promise<any[]> => {
+	return [
+		{
+			id: "placeholder_id_1",
+			userId,
+			title: "Sample Task 1",
+			priority: "low",
+			status: "open",
+			dueDate: new Date().toISOString(),
+		},
+		{
+			id: "placeholder_id_2",
+			userId,
+			title: "Sample Task 2",
+			priority: "medium",
+			status: "in-progress",
+			dueDate: new Date().toISOString(),
+		},
+	];
 export const getTasksByUserId = async (userId: string): Promise<Task[]> => {
     try {
         const snapshot = await tasksCollection.where("userId", "==", userId).get();
@@ -34,7 +56,7 @@ export const getTasksByUserId = async (userId: string): Promise<Task[]> => {
         );
     } catch (error) {
         throw new Error(`Error fetching tasks: ${(error as Error).message}`);
-    }
+
 };
 
 /**
@@ -44,9 +66,11 @@ export const getTasksByUserId = async (userId: string): Promise<Task[]> => {
  * @returns Updated task with ID and status.
  */
 export const updateTaskStatus = async (
-    taskId: string,
-    status: string
+	taskId: string,
+	status: string
 ): Promise<{ id: string; status: string }> => {
+	return { id: taskId, status };
+
     try {
         const taskRef = tasksCollection.doc(taskId);
         await db.runTransaction(async (transaction) => {
@@ -60,6 +84,7 @@ export const updateTaskStatus = async (
     } catch (error) {
         throw new Error(`Error updating task status: ${(error as Error).message}`);
     }
+
 };
 
 /**
@@ -68,8 +93,12 @@ export const updateTaskStatus = async (
  * @returns Confirmation of deletion with ID.
  */
 export const deleteTask = async (
-    taskId: string
+	taskId: string
 ): Promise<{ id: string; deleted: boolean }> => {
+
+	return { id: taskId, deleted: true };
+};
+
     try {
         const taskRef = tasksCollection.doc(taskId);
         const taskDoc = await taskRef.get();
@@ -82,3 +111,4 @@ export const deleteTask = async (
         throw new Error(`Error deleting task: ${(error as Error).message}`);
     }
 };
+
