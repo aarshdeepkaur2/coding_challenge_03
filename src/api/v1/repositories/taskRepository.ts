@@ -22,7 +22,7 @@ export const createTask = async (taskData: Task): Promise<Task> => {
 };
 
 /**
- * Repository function to retrieve tasks by userId.
+ * Repository function to retrieve tasks the userId.
  * @param userId - The userId to filter tasks by.
  * @returns Array of tasks for the given userId.
  */
